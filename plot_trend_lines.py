@@ -44,9 +44,21 @@ def get_trendline_params(data, start_period, end_period):
     slope, intercept, _, _, _ = linregress(x_vals, y_vals)
     return slope, intercept, subset
 
-# Calculate trend line parameters
-slope_2008_2017, intercept_2008_2017, data_2008_2017 = get_trendline_params(monthly_data, pd.Period('2008-10', 'M'), pd.Period('2017-08', 'M'))
-slope_2018_2024, intercept_2018_2024, data_2018_2024 = get_trendline_params(monthly_data, pd.Period('2017-08', 'M'), pd.Period('2024-06', 'M'))
+# Calculate trend line parameters for red line (2008-2017)
+slope_2008_2017, intercept_2008_2017, data_2008_2017 = get_trendline_params(monthly_data, pd.Period('2008-10', 'M'), pd.Period('2017-10', 'M'))
+
+# Calculate the y-value at the end of the red line (October 2017)
+end_index_2017 = len(data_2008_2017) - 1
+end_value_2017 = end_index_2017 * slope_2008_2017 + intercept_2008_2017
+
+# Calculate trend line parameters for green line (2018-2024)
+slope_2018_2024, intercept_2018_2024, data_2018_2024 = get_trendline_params(monthly_data, pd.Period('2017-06', 'M'), pd.Period('2024-06', 'M'))
+
+# Adjust the intercept of the green line to start 1000 TB lower than where the red line ends
+start_index_2018 = 0
+start_value_2018 = start_index_2018 * slope_2018_2024 + intercept_2018_2024
+intercept_2018_2024 += (end_value_2017 - start_value_2018 - 1500)
+
 
 # Calculate trend lines
 trend_2008_2017 = data_2008_2017.index * slope_2008_2017 + intercept_2008_2017
