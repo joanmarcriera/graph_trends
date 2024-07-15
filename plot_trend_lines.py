@@ -46,12 +46,19 @@ def get_trendline_params(data, start_period, end_period):
 
 # Calculate trend line parameters
 slope_2008_2017, intercept_2008_2017 = get_trendline_params(monthly_data, pd.Period('2008-10', 'M'), pd.Period('2017-10', 'M'))
-slope_2018_2024, intercept_2018_2024 = get_trendline_params(monthly_data, pd.Period('2018-06', 'M'), monthly_data['YearMonth'].iloc[-1])
+slope_2018_2024, _ = get_trendline_params(monthly_data, pd.Period('2018-06', 'M'), monthly_data['YearMonth'].iloc[-1])
+
+# Calculate the y-value of the red trend line at the end of 2017
+end_index_2017 = len(monthly_data[(monthly_data['YearMonth'] >= pd.Period('2008-10', 'M')) & (monthly_data['YearMonth'] <= pd.Period('2017-10', 'M'))])
+y_end_2017 = end_index_2017 * slope_2008_2017 + intercept_2008_2017
+
+# Calculate the adjusted intercept for the green trend line starting from the end of 2017
+adjusted_intercept_2018_2024 = y_end_2017 - end_index_2017 * slope_2018_2024
 
 # Generate trend lines for the entire range of x-values
 x_vals_full = np.arange(len(monthly_data))
 trend_2008_2017_full = x_vals_full * slope_2008_2017 + intercept_2008_2017
-trend_2018_2024_full = x_vals_full * slope_2018_2024 + intercept_2018_2024
+trend_2018_2024_full = x_vals_full * slope_2018_2024 + adjusted_intercept_2018_2024
 
 # If debug mode is enabled, print the total archived data
 if args.debug:
