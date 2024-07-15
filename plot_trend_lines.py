@@ -45,8 +45,8 @@ def get_trendline_params(data, start_period, end_period):
     return slope, intercept, subset
 
 # Calculate trend line parameters
-slope_2008_2017, intercept_2008_2017, data_2008_2017 = get_trendline_params(monthly_data, pd.Period('2008-10', 'M'), pd.Period('2017-10', 'M'))
-slope_2018_2024, intercept_2018_2024, data_2018_2024 = get_trendline_params(monthly_data, pd.Period('2018-06', 'M'), pd.Period('2024-06', 'M'))
+slope_2008_2017, intercept_2008_2017, data_2008_2017 = get_trendline_params(monthly_data, pd.Period('2008-10', 'M'), pd.Period('2017-08', 'M'))
+slope_2018_2024, intercept_2018_2024, data_2018_2024 = get_trendline_params(monthly_data, pd.Period('2017-08', 'M'), pd.Period('2024-06', 'M'))
 
 # Calculate trend lines
 trend_2008_2017 = data_2008_2017.index * slope_2008_2017 + intercept_2008_2017
