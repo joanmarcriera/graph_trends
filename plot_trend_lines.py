@@ -37,25 +37,21 @@ monthly_data['ArchivedDataTB'] = (monthly_data['ArchivedData'] / (1024 ** 4)).ro
 monthly_data = monthly_data.sort_values(by='YearMonth')
 
 # Function to calculate linear regression for specified periods
-def get_trendline_data(data, start_period, end_period):
+def get_trendline_params(data, start_period, end_period):
     subset = data[(data['YearMonth'] >= start_period) & (data['YearMonth'] <= end_period)]
     x_vals = np.arange(len(subset))
     y_vals = subset['ArchivedDataTB']
     slope, intercept, _, _, _ = linregress(x_vals, y_vals)
-    return x_vals, (x_vals * slope + intercept)
+    return slope, intercept
 
-# Calculate trend lines
-start_2008 = pd.Period('2008-10', 'M')
-end_2017 = pd.Period('2017-10', 'M')
-start_2018 = pd.Period('2018-06', 'M')
-end_2024 = monthly_data['YearMonth'].iloc[-1]  # Use the last period in the data
+# Calculate trend line parameters
+slope_2008_2017, intercept_2008_2017 = get_trendline_params(monthly_data, pd.Period('2008-10', 'M'), pd.Period('2017-10', 'M'))
+slope_2018_2024, intercept_2018_2024 = get_trendline_params(monthly_data, pd.Period('2018-06', 'M'), monthly_data['YearMonth'].iloc[-1])
 
-x_vals_2008_2017, trend_2008_2017 = get_trendline_data(monthly_data, start_2008, end_2017)
-x_vals_2018_2024, trend_2018_2024 = get_trendline_data(monthly_data, start_2018, end_2024)
-
-# Adjust original x-values to align with the entire timeline for plotting
-x_vals_2008_2017 += monthly_data.index[monthly_data['YearMonth'] == start_2008][0]
-x_vals_2018_2024 += monthly_data.index[monthly_data['YearMonth'] == start_2018][0]
+# Generate trend lines for the entire range of x-values
+x_vals_full = np.arange(len(monthly_data))
+trend_2008_2017_full = x_vals_full * slope_2008_2017 + intercept_2008_2017
+trend_2018_2024_full = x_vals_full * slope_2018_2024 + intercept_2018_2024
 
 # If debug mode is enabled, print the total archived data
 if args.debug:
@@ -68,8 +64,8 @@ plt.figure(figsize=(12, 8))
 plt.plot(monthly_data['YearMonth'].astype(str), monthly_data['ArchivedDataTB'], linestyle='-', label='Monthly Archived Data')
 
 # Plotting the trend lines
-plt.plot(monthly_data['YearMonth'].astype(str).iloc[x_vals_2008_2017], trend_2008_2017, 'r--', label='Trend 2008-2017')
-plt.plot(monthly_data['YearMonth'].astype(str).iloc[x_vals_2018_2024], trend_2018_2024, 'g--', label='Trend 2018-2024')
+plt.plot(monthly_data['YearMonth'].astype(str), trend_2008_2017_full, 'r--', label='Trend 2008-2017', linewidth=2, alpha=0.7)
+plt.plot(monthly_data['YearMonth'].astype(str), trend_2018_2024_full, 'g--', label='Trend 2018-2024', linewidth=2, alpha=0.7)
 
 # Set x-axis tick positions and labels to show even years only from 2008 to 2024
 even_years = [f'{year}-01' for year in range(2008, 2025, 2)]
