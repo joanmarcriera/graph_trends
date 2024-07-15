@@ -103,6 +103,9 @@ plt.title('Monthly Archived Data with Trend Lines', fontsize=16)
 plt.legend(fontsize=12)
 plt.grid(True, which='both', linestyle='--', linewidth=0.5)
 
+# Add the sentence on top
+plt.figtext(0.5, 0.95, "Fixing the trend, leaving an everlasting mark", ha='center', fontsize=16, fontweight='bold')
+
 # Adjust layout and show the plot
 plt.tight_layout()
 plt.show()
