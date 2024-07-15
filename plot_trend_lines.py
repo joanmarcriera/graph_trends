@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import argparse
 from scipy.stats import linregress
+from scipy.interpolate import make_interp_spline
 
 # Argument parsing
 parser = argparse.ArgumentParser(description='Plot archived data with trend lines.')
@@ -59,7 +60,6 @@ start_index_2018 = 0
 start_value_2018 = start_index_2018 * slope_2018_2024 + intercept_2018_2024
 intercept_2018_2024 += (end_value_2017 - start_value_2018 - 1500)
 
-
 # Calculate trend lines
 trend_2008_2017 = data_2008_2017.index * slope_2008_2017 + intercept_2008_2017
 trend_2018_2024 = data_2018_2024.index * slope_2018_2024 + intercept_2018_2024
@@ -70,13 +70,20 @@ if args.debug:
     total_archived_data_pb = total_archived_data_tb / 1024
     print(f"Total Archived Data: {total_archived_data_pb} PB")
 
+# Interpolation for smooth lines
+x = np.arange(len(monthly_data))
+y = monthly_data['ArchivedDataTB']
+x_smooth = np.linspace(x.min(), x.max(), 300)
+spl = make_interp_spline(x, y, k=3)
+y_smooth = spl(x_smooth)
+
 # Plot the data with trend lines
-plt.figure(figsize=(12, 8))
-plt.plot(monthly_data['YearMonth'].astype(str), monthly_data['ArchivedDataTB'], linestyle='-', label='Monthly Archived Data')
+plt.figure(figsize=(14, 10))
+plt.plot(x_smooth, y_smooth, linestyle='-', color='b', label='Monthly Archived Data', linewidth=2)
 
 # Plotting the trend lines
-plt.plot(data_2008_2017['YearMonth'].astype(str), trend_2008_2017, 'r--', label='Trend 2008-2017', linewidth=2, alpha=0.7)
-plt.plot(data_2018_2024['YearMonth'].astype(str), trend_2018_2024, 'g--', label='Trend 2018-2024', linewidth=2, alpha=0.7)
+plt.plot(data_2008_2017.index, trend_2008_2017, 'r--', label='Trend 2008-2017', linewidth=2, alpha=0.7)
+plt.plot(data_2018_2024.index, trend_2018_2024, 'g--', label='Trend 2018-2024', linewidth=2, alpha=0.7)
 
 # Set x-axis tick positions and labels to show even years only from 2008 to 2024
 even_years = [f'{year}-01' for year in range(2008, 2025, 2)]
@@ -87,13 +94,15 @@ for year in even_years:
         tick_positions.append(monthly_data.index[monthly_data['YearMonth'] == pd.Period(year)].tolist()[0])
         tick_labels.append(year[:4])
 
-plt.xticks(tick_positions, tick_labels, rotation=45)
+plt.xticks(tick_positions, tick_labels, rotation=45, fontsize=12)
 
 # Add labels and legend
-plt.xlabel('Year')
-plt.ylabel('Archived Data (TB/month)')
-plt.title('Monthly Archived Data with Trend Lines')
-plt.legend()
-plt.grid(True)
+plt.xlabel('Year', fontsize=14)
+plt.ylabel('Archived Data (TB/month)', fontsize=14)
+plt.title('Monthly Archived Data with Trend Lines', fontsize=16)
+plt.legend(fontsize=12)
+plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+
+# Adjust layout and show the plot
 plt.tight_layout()
 plt.show()
