@@ -38,10 +38,6 @@ monthly_data = monthly_data.sort_values(by='YearMonth')
 
 # Function to calculate linear regression for specified periods
 def get_trendline_data(data, start_period, end_period):
-    """
-    Calculate the linear regression parameters for a subset of data 
-    between start_period and end_period, inclusive.
-    """
     subset = data[(data['YearMonth'] >= start_period) & (data['YearMonth'] <= end_period)]
     x_vals = np.arange(len(subset))
     y_vals = subset['ArchivedDataTB']
@@ -75,9 +71,16 @@ plt.plot(monthly_data['YearMonth'].astype(str), monthly_data['ArchivedDataTB'], 
 plt.plot(monthly_data['YearMonth'].astype(str).iloc[x_vals_2008_2017], trend_2008_2017, 'r--', label='Trend 2008-2017')
 plt.plot(monthly_data['YearMonth'].astype(str).iloc[x_vals_2018_2024], trend_2018_2024, 'g--', label='Trend 2018-2024')
 
-# Set x-axis minor ticks to show even years only from 2008 to 2024
-even_years = [str(year) for year in range(2008, 2025, 2)]
-plt.xticks(even_years, rotation=45)
+# Set x-axis tick positions and labels to show even years only from 2008 to 2024
+even_years = [f'{year}-01' for year in range(2008, 2025, 2)]
+tick_positions = []
+tick_labels = []
+for year in even_years:
+    if not monthly_data.index[monthly_data['YearMonth'] == pd.Period(year)].empty:
+        tick_positions.append(monthly_data.index[monthly_data['YearMonth'] == pd.Period(year)].tolist()[0])
+        tick_labels.append(year[:4])
+
+plt.xticks(tick_positions, tick_labels, rotation=45)
 
 # Add labels and legend
 plt.xlabel('Year')
