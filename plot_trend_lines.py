@@ -79,7 +79,7 @@ y_smooth = spl(x_smooth)
 
 # Plot the data with trend lines
 plt.figure(figsize=(14, 10))
-plt.plot(x_smooth, y_smooth, linestyle='-', color='b', label='Monthly Archived Data', linewidth=2)
+plt.plot(x_smooth, y_smooth, linestyle='-', color='blue', label='Monthly TeraBytes Archived', linewidth=2)
 
 # Plotting the trend lines
 plt.plot(data_2008_2017.index, trend_2008_2017, 'r--', label='Trend 2008-2017', linewidth=2, alpha=0.7)
@@ -96,15 +96,43 @@ for year in even_years:
 
 plt.xticks(tick_positions, tick_labels, rotation=45, fontsize=12)
 
+
+event_position = monthly_data.index[monthly_data['YearMonth'] == pd.Period('2017-08')][0]
+plt.axvline(x=event_position, color='purple', linestyle='--', label='The Event', linewidth=2)
+
+# Value points
+# Highest point before 2018
+highest_point_before_2018 = monthly_data[monthly_data['YearMonth'] < pd.Period('2017-08')]['ArchivedDataTB'].idxmax()
+highest_value_before_2018 = monthly_data.loc[highest_point_before_2018, 'ArchivedDataTB']
+
+# Highest point after 2018
+highest_point_after_2018 = monthly_data[monthly_data['YearMonth'] >= pd.Period('2017-08')]['ArchivedDataTB'].idxmax()
+highest_value_after_2018 = monthly_data.loc[highest_point_after_2018, 'ArchivedDataTB']
+
+# Adding text for the highest point before 2018
+plt.text(highest_point_before_2018, highest_value_before_2018, f'{highest_value_before_2018}', 
+         ha='center', va='bottom', fontsize=16, color='black')
+
+# Adding text for the highest point after 2018
+plt.text(highest_point_after_2018, highest_value_after_2018, f'{highest_value_after_2018}', 
+         ha='center', va='bottom', fontsize=16, color='black')
+
+
+
+
+
+
 # Add labels and legend
-plt.xlabel('Year', fontsize=14)
-plt.ylabel('Archived Data (TB/month)', fontsize=14)
-plt.title('Monthly Archived Data with Trend Lines', fontsize=16)
-plt.legend(fontsize=12)
-plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+#plt.xlabel('Year', fontsize=14)
+#plt.ylabel('Archived Data (TB/month)', fontsize=14)
+# plt.title('TeraBytes archived / Month', fontsize=16)
+#plt.text(0.02, 0.98, 'TeraBytes archived / Month', fontsize=16, transform=plt.gca().transAxes,          verticalalignment='top', horizontalalignment='left')
+plt.legend(fontsize=12, loc='upper left',bbox_to_anchor=(0, 0.9))
+#plt.grid(True, which='major', linestyle='--', linewidth=0.7)
+plt.grid(False)
 
 # Add the sentence on top
-plt.figtext(0.5, 0.95, "Fixing the trend, leaving an everlasting mark", ha='center', fontsize=16, fontweight='bold')
+#plt.figtext(0.5, 0.95, "Fixing the trend, leaving an everlasting mark", ha='center', fontsize=16, fontweight='bold')
 
 # Adjust layout and show the plot
 plt.tight_layout()
